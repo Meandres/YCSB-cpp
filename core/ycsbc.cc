@@ -25,6 +25,7 @@
 #include "utils/rate_limit.h"
 #include "utils/timer.h"
 #include "utils/utils.h"
+#include <mte.hpp>
 
 void UsageMessage(const char *command);
 bool StrStartWith(const char *str, const char *pre);
@@ -85,6 +86,9 @@ void RateLimitThread(std::string rate_file, std::vector<ycsbc::utils::RateLimite
 }
 
 int main(const int argc, const char *argv[]) {
+#ifdef MTE
+  init_process(MTE_MODE_SYNC);
+#endif
   ycsbc::utils::Properties props;
   ParseCommandLine(argc, argv, props);
 
