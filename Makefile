@@ -78,20 +78,22 @@ CXX = clang++ -Xclang -fcolor-diagnostics
 endif
 
 ifeq ($(ARCH), cheri)
-#CXX = $(CLANG_PURECAP_PATH)/bin/clang++ -Xclang -fcolor-diagnostics
-#CXXFLAGS += -march=morello -mabi=purecap -Wcheri --target=aarch64-linux-musl_purecap --sysroot $(PURECAP_LIBC) -I$(PURECAP_LIBC)/include $(GCC_INCLUDES) -isystem $(CLANG_PURECAP_PATH)/include/ -I$(CLANG_PURECAP_PATH)/lib/clang/15.0.0/include -D_LIBCPP_HAS_MUSL_LIBC -DCHERI -stdlib=libc++
-#LDFLAGS += -L$(PURECAP_LIBC)/lib -L$(NIX_LD_LIBRARY_PATH) -L$(LLVM_PATH)/lib
-CXX = $(CLANG_PURECAP_PATH)/bin/clang++ -Xclang -fcolor-diagnostics
-CXXFLAGS += -lunwind -lc++abi
+ifeq ($(MORELLO_HOME),)
+$(error "Please source /morello/env/morello-sdk first")
+endif
+CXX = $(MORELLO_HOME)/llvm/bin/clang++ -Xclang -fcolor-diagnostics
+CXXFLAGS += -march=morello -mabi=purecap -Wcheri --target=aarch64-linux-musl_purecap -DCHERI --sysroot $(MUSL_HOME)
+ADDITIONAL_CXXFLAGS = -nostdlib -static -L$(MORELLO_HOME)/musl/lib -L$(MORELLO_HOME)/gnu/lib/gcc/aarch64-none-linux-gnu/10.1.0/purecap/c64 
+ADDITIONAL_CXXFLAGS += $(MORELLO_HOME)/musl/lib/crt1.o $(MORELLO_HOME)/musl/lib/crti.o
+LDFLAGS += -lc++ -lunwind -lc++abi -lc -L$(MORELLO_HOME)/llvm/lib/clang/14.0.0/lib/aarch64-unknown-linux-musl_purecapi -lgcc $(MORELLO_HOME)/musl/lib/crtn.o
 endif
 
-CXXFLAGS += -std=c++20 -Wall -pthread $(EXTRA_CXXFLAGS) -fsigned-char -Wno-deprecated-volatile -I./
-CXXFLAGS += -I../../datastructures/include -I../../utils
+CXXFLAGS += -std=c++20 -Wall $(EXTRA_CXXFLAGS) -pthread -fsigned-char -Wno-deprecated-volatile -I./
+CXXFLAGS += -I../include -I../../utils
 LDFLAGS += $(EXTRA_LDFLAGS) -lpthread
-LDFLAGS += -L../../datastructures/lib -lclht_lf_$(ARCH) 
+LDFLAGS += -L../lib -lclht_lf_$(ARCH) 
 SOURCES += $(wildcard core/*.cc)
 SOURCES += $(wildcard memsafedb_bench/*.cc)
-#memsafedb_bench/art_db.cc memsafedb_bench/hashtable.cc memsafedb_bench/serialize.cc memsafedb_bench/clht_db.cc memsafedb_bench/skiplist_db.cc memsafedb_bench/btree_db.cc memsafedb_bench/link_list_db.cc
 OBJECTS += $(SOURCES:.cc=.o)
 DEPS += $(SOURCES:.cc=.d)
 EXEC = ycsb
@@ -111,20 +113,8 @@ endif
 
 all: $(EXEC)
 
-ifeq ($(ARCH), cheri)
 $(EXEC): $(OBJECTS)
-	$(CXX) -fuse-ld=ldd -march=morello -mabi=purecap --target=aarch64-linux-musl_purecap \
-		-Wl,-rpath,$(PURECAP_LIB)/lib --sysroot $(PURECAP_LIB) -lunwind -lc++abi \
-		-rtlib=compiler-rt $^ -o $@ -Wl,--dynamic-linker=$(PURECAP_LIB)/lib/libc.so
-
-.cc.o:
-	$(CXX) -c -g -march=morello -mabi=purecap --target=aarch64-linux-musl_purecap --sysroot $(PURECAP_LIB) -o $@ $<
-
-%.d: %.cc
-	@$(CXX) -c -g -march=morello -mabi=purecap --target=aarch64-linux-musl_purecap --sysroot $(PURECAP_LIB) -MM -MT '$(<:.cc=.o)' -o $@ $<
-else
-$(EXEC): $(OBJECTS)
-	@$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
+	@$(CXX) $(CXXFLAGS) $(ADDITIONAL_CXXFLAGS) $^ $(LDFLAGS) -o $@
 	@echo "  LD      " $@
 
 .cc.o:
@@ -133,7 +123,6 @@ $(EXEC): $(OBJECTS)
 
 %.d: %.cc
 	@$(CXX) $(CXXFLAGS) $(CPPFLAGS) -MM -MT '$(<:.cc=.o)' -o $@ $<
-endif
 
 $(HDRHISTOGRAM_DIR)/CMakeLists.txt:
 	@echo "Download HdrHistogram_c"
