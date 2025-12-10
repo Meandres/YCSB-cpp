@@ -70,6 +70,7 @@ UNAME := $(shell uname -n)
 ifeq ($(ARCH), aarch64)
 CXX = clang++ -Xclang -fcolor-diagnostics
 CXXFLAGS += -march=native
+LDFLAGS += -L/tmp
 endif
 
 ifeq ($(ARCH), mte)

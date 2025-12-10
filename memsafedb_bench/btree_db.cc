@@ -18,7 +18,7 @@ void BTree_DB::Init() {
   string field_prefix_ = props.GetProperty(CoreWorkload::FIELD_NAME_PREFIX, CoreWorkload::FIELD_NAME_PREFIX_DEFAULT);
   len_payload = fieldcount_ * (fieldlength_ + field_prefix_.size() + to_string(fieldcount_).size()) + 1 /* the slash*/ + to_string(fieldcount_).size() /* the number of fields */ + to_string(fieldlength_).size() /* the size of fields */ + 2 /* two spaces after each count and length */; 
   //uint64_t ops = stoul(props.GetProperty(CoreWorkload::RECORD_COUNT_PROPERTY)) + stoul(props.GetProperty(CoreWorkload::OPERATION_COUNT_PROPERTY));
-  uint64_t memsize = 12ull * 1024 * 1024 * 1024;
+  uint64_t memsize = 8ull * 1024 * 1024 * 1024;
   if(!tree.initialized){
     tree.init(memsize);
   }
