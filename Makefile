@@ -32,7 +32,7 @@ BUILD_HDRHISTOGRAM ?= 0
 ifeq ($(DEBUG_BUILD), 1)
 	CXXFLAGS += -g -O0 -fno-omit-frame-pointer#-fsanitize=address -fsanitize=undefined 
 else
-	CXXFLAGS += -O2
+	CXXFLAGS += -O2 -g
 	CPPFLAGS += -DNDEBUG
 endif
 
@@ -61,6 +61,16 @@ ifeq ($(BIND_SQLITE), 1)
 	SOURCES += $(wildcard sqlite/*.cc)
 endif
 
+CXXFLAGS += -std=c++20 -Wall $(EXTRA_CXXFLAGS) -pthread -fsigned-char -Wno-deprecated-volatile -I./
+CXXFLAGS += -I../include -I../../utils
+LDFLAGS += $(EXTRA_LDFLAGS) -lpthread
+LDFLAGS += -L../lib -lclht_lf_$(ARCH) 
+SOURCES += $(wildcard core/*.cc)
+SOURCES += $(wildcard memsafedb_bench/*.cc)
+OBJECTS += $(SOURCES:.cc=.o)
+DEPS += $(SOURCES:.cc=.d)
+EXEC = ycsb
+
 ifeq ($(ARCH),)
 ARCH="aarch64"
 endif
@@ -71,6 +81,10 @@ ifeq ($(ARCH), aarch64)
 CXX = clang++ -Xclang -fcolor-diagnostics
 CXXFLAGS += -march=native
 LDFLAGS += -L/tmp
+ifeq ($(UNAME), ace)
+CXXFLAGS += -static -stdlib=libc++ -I$(LIBCXX_HDR)/include/c++/v1/ -L$(MUSL_PATH)/lib -nostdlib $(MUSL_PATH)/lib/crt1.o $(MUSL_PATH)/lib/crti.o -DAARCH64_ACE -Wno-unused-command-line-argument 
+LDFLAGS += -lc++ -lunwind -lc++abi -Wl,--start-group -lc -lgcc -Wl,--end-group $(MUSL_PATH)/lib/crtn.o
+endif
 endif
 
 ifeq ($(ARCH), mte)
@@ -88,16 +102,6 @@ ADDITIONAL_CXXFLAGS = -nostdlib -static -L$(MORELLO_HOME)/musl/lib -L$(MORELLO_H
 ADDITIONAL_CXXFLAGS += $(MORELLO_HOME)/musl/lib/crt1.o $(MORELLO_HOME)/musl/lib/crti.o
 LDFLAGS += -lc++ -lunwind -lc++abi -lc -L$(MORELLO_HOME)/llvm/lib/clang/14.0.0/lib/aarch64-unknown-linux-musl_purecapi -lgcc $(MORELLO_HOME)/musl/lib/crtn.o
 endif
-
-CXXFLAGS += -std=c++20 -Wall $(EXTRA_CXXFLAGS) -pthread -fsigned-char -Wno-deprecated-volatile -I./
-CXXFLAGS += -I../include -I../../utils
-LDFLAGS += $(EXTRA_LDFLAGS) -lpthread
-LDFLAGS += -L../lib -lclht_lf_$(ARCH) 
-SOURCES += $(wildcard core/*.cc)
-SOURCES += $(wildcard memsafedb_bench/*.cc)
-OBJECTS += $(SOURCES:.cc=.o)
-DEPS += $(SOURCES:.cc=.d)
-EXEC = ycsb
 
 HDRHISTOGRAM_DIR = HdrHistogram_c
 HDRHISTOGRAM_LIB = $(HDRHISTOGRAM_DIR)/src/libhdr_histogram_static.a

@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <random>
 #include <string>
+#include <profiler.h>
 
 using ycsbc::CoreWorkload;
 using std::string;
@@ -291,13 +292,17 @@ DB::Status CoreWorkload::TransactionRead(DB &db) {
   uint64_t key_num = NextTransactionKeyNum();
   const std::string key = BuildKeyName(key_num);
   std::vector<DB::Field> result;
+  DB::Status status;
   if (!read_all_fields()) {
     std::vector<std::string> fields;
     fields.push_back(NextFieldName());
-    return db.Read(table_name_, key, &fields, result);
+    //return db.Read(table_name_, key, &fields, result);
+    status = db.Read(table_name_, key, &fields, result);
   } else {
-    return db.Read(table_name_, key, NULL, result);
+    //return db.Read(table_name_, key, NULL, result);
+    status = db.Read(table_name_, key, NULL, result);
   }
+  return status;
 }
 
 DB::Status CoreWorkload::TransactionReadModifyWrite(DB &db) {

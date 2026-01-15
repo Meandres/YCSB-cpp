@@ -34,7 +34,7 @@ class RateLimiter {
     // refill tokens
     auto now = Clock::now();
     auto diff = std::chrono::duration_cast<Duration>(now - last_);
-#ifdef CHERI
+#if defined(CHERI) || defined(AARCH64_ACE)
     tokens_ = b_ <= tokens_ + diff.count() * r_ / 1000000000 ? b_ : tokens_ + diff.count() * r_ / 1000000000;
 #else
     tokens_ = std::min(b_, tokens_ + diff.count() * r_ / 1000000000);
@@ -58,7 +58,7 @@ class RateLimiter {
     // refill tokens
     auto now = Clock::now();
     auto diff = std::chrono::duration_cast<Duration>(now - last_);
-#ifdef CHERI
+#if defined(CHERI) || defined(AARCH64_ACE)
     tokens_ = b_ <= tokens_ + diff.count() * r_ * TOKEN_PRECISION / 1000000000 ? b_ : tokens_ + diff.count() * r_ * TOKEN_PRECISION / 1000000000;
 #else
     tokens_ = std::min(b_, tokens_ + diff.count() * r_ * TOKEN_PRECISION / 1000000000);

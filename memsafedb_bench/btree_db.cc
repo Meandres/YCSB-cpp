@@ -3,6 +3,7 @@
 #include "core/db_factory.h"
 #include <cmath>
 #include <cassert>
+#include <profiler.h>
 
 using namespace std;
 
@@ -35,12 +36,12 @@ DB::Status BTree_DB::Read(const std::string &table, const std::string &key,
   })){
     return kNotFound;
   }
-  string data(reinterpret_cast<const char*>(payload.data()), payload.size()); 
+  /*string data(reinterpret_cast<const char*>(payload.data()), payload.size()); 
   if(fields != nullptr){
     DeserializeRowFilter(&result, data, *fields);
   }else{
     DeserializeRow(&result, data, fieldcount_);
-  }
+  }*/
   return kOK;
 }
 
@@ -53,14 +54,14 @@ DB::Status BTree_DB::Scan(const std::string &table, const std::string &key, int 
   int i = 0;
   tree.scanAsc({k.data(), k.size()}, [&](BTree::BTreeNode& node, unsigned slot){
     memcpy(payload.data(), node.getPayload(slot).data(), node.getPayload(slot).size());
-    string data(reinterpret_cast<const char*>(payload.data()), payload.size()); 
+    /*string data(reinterpret_cast<const char*>(payload.data()), payload.size()); 
     result.push_back(vector<Field>());
     vector<Field> &values = result.back();
     if (fields != nullptr) {
       DeserializeRowFilter(&values, data, *fields);
     } else {
       DeserializeRow(&values, data, fieldcount_);
-    }
+    }*/
     if(i>= len)
       return true;
     i++;

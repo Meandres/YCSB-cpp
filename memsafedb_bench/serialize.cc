@@ -1,5 +1,6 @@
 #include "serialize.h"
 #include <cstdint>
+#include <profiler.h>
 
 // Serialization:
 // [nb_field] [field_size] [name field0]/[field 0]...[name field n]/[field n]

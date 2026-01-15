@@ -50,12 +50,12 @@ std::string BasicMeasurements::GetStatusMsg() {
       continue;
     msg_stream << " [" << kOperationString[op] << ":"
                << " Count=" << cnt
-               << " Max=" << latency_max_[op].load(std::memory_order_relaxed) / 1000.0
-               << " Min=" << latency_min_[op].load(std::memory_order_relaxed) / 1000.0
+               << " Max=" << latency_max_[op].load(std::memory_order_relaxed) // / 1000.0
+               << " Min=" << latency_min_[op].load(std::memory_order_relaxed) // / 1000.0
                << " Avg="
                << ((cnt > 0)
                    ? static_cast<double>(latency_sum_[op].load(std::memory_order_relaxed)) / cnt
-                   : 0) / 1000.0
+                   : 0) // / 1000.0
                << "]";
     total_cnt += cnt;
   }

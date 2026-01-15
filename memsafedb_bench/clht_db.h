@@ -18,7 +18,7 @@ namespace ycsbc {
 
 class CLHT_DB : public DB {
  public:
-  CLHT_DB(): ht(NULL){}
+  CLHT_DB() {}
 
   void Init() override;
 
@@ -38,9 +38,10 @@ class CLHT_DB : public DB {
   uint64_t ExtractKey(const std::string &key);
 
   static std::mutex mutex_;
-  clht* ht;
-  std::atomic<uint64_t> available_pos;
-  std::vector<std::string> entries;
+  static bool initialized;
+  static clht* ht;
+  static std::atomic<uint64_t> available_pos;
+  static std::vector<std::string> entries;
   int fieldcount_;
   
 };

@@ -26,7 +26,11 @@
 #include "utils/timer.h"
 #include "utils/utils.h"
 #include <mte.hpp>
+#include <profiler.h>
 
+#if defined(CHERI) || defined(AARCH64_ACE)
+void* __dso_handle = nullptr;
+#endif
 void UsageMessage(const char *command);
 bool StrStartWith(const char *str, const char *pre);
 void ParseCommandLine(int argc, const char *argv[], ycsbc::utils::Properties &props);
@@ -226,6 +230,7 @@ int main(const int argc, const char *argv[]) {
     std::cout << "Run operations(ops): " << sum << std::endl;
     std::cout << "Run throughput(ops/sec): " << sum / runtime << std::endl;
   }
+  profiler_print_stats();
 
   for (int i = 0; i < num_threads; i++) {
     delete dbs[i];

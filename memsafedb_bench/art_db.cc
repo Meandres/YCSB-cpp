@@ -22,11 +22,11 @@ DB::Status ART_DB::Read(const std::string &table, const std::string &key,
   if(data == string()){
     return kNotFound;
   }
-  if(fields != nullptr){
+  /*if(fields != nullptr){
     DeserializeRowFilter(&result, data, *fields);
   }else{
     DeserializeRow(&result, data, fieldcount_);
-  }
+  }*/
   return kOK;
 }
 
@@ -37,13 +37,13 @@ DB::Status ART_DB::Scan(const std::string &table, const std::string &key, int le
   auto it_end = tree.end();
   for (int i = 0; it != it_end && i < len; ++i, ++it) {
     string data = *it;
-    result.push_back(vector<Field>());
+    /*result.push_back(vector<Field>());
     vector<Field> &values = result.back();
     if (fields != nullptr) {
       DeserializeRowFilter(&values, data, *fields);
     } else {
       DeserializeRow(&values, data, fieldcount_);
-    }
+    }*/
   }
   return kOK;
 }

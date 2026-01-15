@@ -20,13 +20,13 @@ DB::Status LinkList_DB::Read(const std::string &table, const std::string &key,
                          const std::vector<std::string> *fields, std::vector<Field> &result) { 
   for(string s: list){
     if(s.starts_with(key)){
-      string k, v;
+      /*string k, v;
       DeserializeKeyValue(&k, &v, s);
       if(fields != nullptr){
         DeserializeRowFilter(&result, v, *fields);
       }else{
         DeserializeRow(&result, v, fieldcount_);
-      }
+      }*/
       return kOK;
     }
   }
@@ -43,7 +43,7 @@ DB::Status LinkList_DB::Scan(const std::string &table, const std::string &key, i
       found = true;
     }
     if(found){
-      string k, v;
+      /*string k, v;
       DeserializeKeyValue(&k, &v, s);
       result.push_back(vector<Field>());
       vector<Field> &values = result.back();
@@ -51,7 +51,7 @@ DB::Status LinkList_DB::Scan(const std::string &table, const std::string &key, i
         DeserializeRowFilter(&values, v, *fields);
       }else{
         DeserializeRow(&values, v, fieldcount_);
-      }
+      }*/
       count++;
     }
     if(count >= len){

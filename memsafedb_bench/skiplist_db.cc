@@ -3,6 +3,7 @@
 #include "core/db_factory.h"
 #include <cmath>
 #include <cassert>
+#include <profiler.h>
 
 using namespace std;
 
@@ -21,17 +22,17 @@ DB::Status SkipList_DB::Read(const std::string &table, const std::string &key,
   skiplist::SkipList::Iterator iter(&list);
   iter.Seek(key.c_str());
   if(iter.Valid()){
-    string entry(iter.key());
+    /*string entry(iter.key());
     string k, v;
     DeserializeKeyValue(&k, &v, entry);
+    PROFILER_RECORD(read);
     assert(k == key);
     if(fields != nullptr){
       DeserializeRowFilter(&result, v, *fields);
     }else{
       DeserializeRow(&result, v, fieldcount_);
-    }
+    }*/
     return kOK;
-    printf("found\n");
   }else{
     return kNotFound;
   }
@@ -43,7 +44,7 @@ DB::Status SkipList_DB::Scan(const std::string &table, const std::string &key, i
   skiplist::SkipList::Iterator iter(&list);
   iter.Seek(key.c_str());
   for (int i = 0; iter.Valid() && i < len; ++i, iter.Next()){
-    string entry(iter.key());
+    /*string entry(iter.key());
     string k, v;
     DeserializeKeyValue(&k, &v, entry);
     result.push_back(vector<Field>());
@@ -52,7 +53,7 @@ DB::Status SkipList_DB::Scan(const std::string &table, const std::string &key, i
       DeserializeRowFilter(&values, v, *fields);
     } else {
       DeserializeRow(&values, v, fieldcount_);
-    }
+    }*/
   }
   return kOK;
 }
