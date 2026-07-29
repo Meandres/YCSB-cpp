@@ -79,11 +79,16 @@ UNAME := $(shell uname -n)
 
 ifeq ($(ARCH), aarch64)
 CXX = clang++ -Xclang -fcolor-diagnostics
-CXXFLAGS += -march=native
 LDFLAGS += -L/tmp
 ifeq ($(UNAME), ace)
-CXXFLAGS += -static -stdlib=libc++ -I$(LIBCXX_HDR)/include/c++/v1/ -L$(MUSL_PATH)/lib -nostdlib $(MUSL_PATH)/lib/crt1.o $(MUSL_PATH)/lib/crti.o -DAARCH64_ACE -Wno-unused-command-line-argument 
+# Morello board is ~armv8.2-a; keep native so we don't emit unsupported insns
+CXXFLAGS += -march=native
+CXXFLAGS += -static -stdlib=libc++ -I$(LIBCXX_HDR)/include/c++/v1/ -L$(MUSL_PATH)/lib -nostdlib $(MUSL_PATH)/lib/crt1.o $(MUSL_PATH)/lib/crti.o -DAARCH64_ACE -Wno-unused-command-line-argument
 LDFLAGS += -lc++ -lunwind -lc++abi -Wl,--start-group -lc -lgcc -Wl,--end-group $(MUSL_PATH)/lib/crtn.o
+else
+# match the MTE build's base ISA so the only delta vs mte is +memtag; using
+# native (v8.6-a) here confounds the tag-check cost with v8.6-vs-v8.5 codegen
+CXXFLAGS += -march=armv8.5-a
 endif
 endif
 

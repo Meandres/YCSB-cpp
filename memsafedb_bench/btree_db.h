@@ -36,7 +36,9 @@ class BTree_DB : public DB {
 
  private:
   static std::mutex mutex_;
-  BTree::BTree tree;
+  // Shared across all per-thread BTree_DB instances (YCSB makes one DB per
+  // thread) so the thread sweep exercises one concurrent tree, like CLHT's ht.
+  static BTree::BTree tree;
   int fieldcount_;
   int len_payload;
   

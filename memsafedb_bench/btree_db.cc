@@ -10,6 +10,7 @@ using namespace std;
 namespace ycsbc {
 
 mutex BTree_DB:: mutex_;
+BTree::BTree BTree_DB::tree;
 
 void BTree_DB::Init() {
   lock_guard<mutex> lock(mutex_);
